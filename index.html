@@ -1,153 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>AI CV Builder</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>CV Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root {
+:root{
   --accent:#5b5ce2;
-  --bg:#ffffff;
-  --text:#111;
+  --font:Inter,Arial,sans-serif;
+  --line:1.5;
 }
 
-*{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
+*{box-sizing:border-box}
 body{
   margin:0;
-  min-height:100vh;
   background:linear-gradient(135deg,#6a5cff,#d94fd5);
+  min-height:100vh;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
+  font-family:var(--font);
 }
 
-/* CARD */
 .app{
-  background:#fff;
-  width:1100px;
+  width:1200px;
   max-width:95%;
-  border-radius:22px;
-  padding:30px;
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
   display:grid;
-  grid-template-columns:380px 1fr;
-  gap:30px;
+  grid-template-columns:360px 1fr;
+  gap:24px;
 }
 
 /* LEFT */
-.sidebar h1{margin:0}
-.sidebar p{color:#666}
-.sidebar input,
-.sidebar textarea{
+.panel h2{margin-top:0}
+.panel input,.panel textarea,.panel select{
   width:100%;
-  padding:14px;
-  margin-top:12px;
-  border-radius:12px;
+  margin-top:8px;
+  padding:10px;
+  border-radius:8px;
   border:1px solid #ddd;
 }
-.sidebar textarea{min-height:120px}
-.sidebar button{
-  margin-top:20px;
+.panel label{font-size:13px;color:#555;margin-top:12px;display:block}
+
+.btn{
+  margin-top:14px;
+  padding:12px;
   width:100%;
-  padding:16px;
-  border-radius:14px;
-  border:none;
   background:var(--accent);
   color:#fff;
+  border:none;
+  border-radius:10px;
   font-weight:600;
   cursor:pointer;
 }
 
 /* CONTROLS */
-.controls{margin-top:25px}
-.controls h4{margin:15px 0 8px}
-.templates,.colors{
-  display:flex;
-  gap:10px;
-}
-.template,.color{
-  padding:10px 14px;
-  border-radius:10px;
-  border:1px solid #ddd;
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.small-btn{
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:8px;
+  border:1px solid #ccc;
   cursor:pointer;
-  font-size:13px;
-}
-.template.locked,.color.locked{
-  opacity:.5;
-  position:relative;
-}
-.template.locked::after,
-.color.locked::after{
-  content:"🔒";
-  position:absolute;
-  top:-8px;
-  right:-8px;
-  background:#000;
-  color:#fff;
-  font-size:11px;
-  padding:3px 6px;
-  border-radius:20px;
 }
 
 /* PREVIEW */
 .preview-wrap{
   background:#f5f6fa;
-  border-radius:18px;
-  padding:25px;
+  border-radius:16px;
+  padding:20px;
   position:relative;
-  overflow:hidden;
 }
 .preview{
-  background:var(--bg);
-  color:var(--text);
-  border-radius:16px;
+  background:#fff;
   padding:30px;
-  min-height:500px;
+  border-radius:12px;
+  min-height:600px;
+  line-height:var(--line);
 }
-.preview.blur{
-  filter:blur(6px);
-  user-select:none;
+.mobile{max-width:390px;margin:auto}
+
+/* SECTIONS */
+.section{
+  margin-top:20px;
 }
-
-/* CV STYLES */
-.cv h2{margin:0}
-.cv .role{color:var(--accent);font-weight:600}
-.cv section{margin-top:20px}
-
-/* TEMPLATES */
-.template-modern{font-size:15px}
-.template-classic{font-family:Georgia,serif}
-.template-creative h2{font-size:28px}
+.section h3{
+  color:var(--accent);
+  margin-bottom:6px;
+}
+.section[draggable]{cursor:grab}
 
 /* PAYWALL */
 .paywall{
   position:absolute;
   inset:0;
-  background:rgba(255,255,255,.92);
+  background:rgba(255,255,255,.95);
   display:flex;
   align-items:center;
   justify-content:center;
 }
 .paybox{
+  text-align:center;
   background:#fff;
   padding:30px;
-  border-radius:18px;
-  text-align:center;
-  max-width:320px;
+  border-radius:16px;
 }
 .paybox a{
   display:block;
-  margin-top:15px;
+  margin-top:12px;
   padding:14px;
   background:#22a958;
   color:#fff;
-  text-decoration:none;
   border-radius:12px;
+  text-decoration:none;
   font-weight:600;
 }
 
-/* RESPONSIVE */
 @media(max-width:900px){
   .app{grid-template-columns:1fr}
 }
@@ -158,57 +129,85 @@ body{
 
 <div class="app">
 
-<!-- LEFT -->
-<div class="sidebar">
-  <h1>AI CV Builder</h1>
-  <p>Create a modern, ATS-friendly CV</p>
+<!-- LEFT PANEL -->
+<div class="panel">
+  <h2>CV Controls</h2>
 
-  <input id="name" placeholder="Full name">
-  <input id="role" placeholder="Profession">
-  <textarea id="exp" placeholder="Experience"></textarea>
+  <label>Name</label>
+  <input id="name" oninput="update()">
 
-  <button onclick="generate()">Generate CV</button>
+  <label>Role</label>
+  <input id="role" oninput="update()">
 
-  <div class="controls">
-    <h4>Templates</h4>
-    <div class="templates">
-      <div class="template" onclick="setTemplate('modern')">Modern</div>
-      <div class="template locked" onclick="locked()">Classic</div>
-      <div class="template locked" onclick="locked()">Creative</div>
-    </div>
+  <label>Summary</label>
+  <textarea id="summary" oninput="update()"></textarea>
+  <small id="summaryCount"></small>
 
-    <h4>Colors</h4>
-    <div class="colors">
-      <div class="color" style="background:#5b5ce2" onclick="setColor('#5b5ce2')"></div>
-      <div class="color locked" style="background:#22a958" onclick="locked()"></div>
-      <div class="color locked" style="background:#000" onclick="locked()"></div>
-    </div>
+  <label>Keywords (comma separated)</label>
+  <input id="keywords" oninput="highlight()">
+
+  <label>Font</label>
+  <select onchange="setFont(this.value)">
+    <option>Inter</option>
+    <option>Arial</option>
+    <option>Calibri</option>
+    <option>Georgia</option>
+  </select>
+
+  <label>Line spacing</label>
+  <input type="range" min="1.2" max="2" step="0.1" value="1.5" oninput="setSpacing(this.value)">
+
+  <div class="row">
+    <button class="small-btn" onclick="toggle('skills')">Toggle Skills</button>
+    <button class="small-btn" onclick="toggle('exp')">Toggle Experience</button>
+    <button class="small-btn" onclick="toggle('edu')">Toggle Education</button>
   </div>
+
+  <div class="row">
+    <button class="small-btn" onclick="undo()">Undo</button>
+    <button class="small-btn" onclick="redo()">Redo</button>
+    <button class="small-btn" onclick="toggleMobile()">Mobile</button>
+  </div>
+
+  <button class="btn" onclick="pay()">Download PDF / DOCX</button>
 </div>
 
-<!-- RIGHT -->
+<!-- PREVIEW -->
 <div class="preview-wrap">
-  <div id="preview" class="preview blur template-modern cv">
-    <h2 id="pName">John Doe</h2>
-    <div class="role" id="pRole">Product Designer</div>
+  <div id="preview" class="preview" oninput="saveState()">
 
-    <section>
+    <h2 contenteditable id="pName">John Doe</h2>
+    <p contenteditable id="pRole">Product Designer</p>
+
+    <div class="section" draggable id="summarySec">
+      <h3>Summary</h3>
+      <p contenteditable id="pSummary">Write a short professional summary.</p>
+    </div>
+
+    <div class="section" draggable id="exp">
       <h3>Experience</h3>
-      <p id="pExp">5+ years designing user-centered products.</p>
-    </section>
+      <p contenteditable>5+ years experience.</p>
+    </div>
+
+    <div class="section" draggable id="skills">
+      <h3>Skills</h3>
+      <p contenteditable>React, UX, Figma</p>
+    </div>
+
+    <div class="section" draggable id="edu">
+      <h3>Education</h3>
+      <p contenteditable>Bachelor Degree</p>
+    </div>
+
   </div>
 
-  <div class="paywall" id="paywall">
+  <div class="paywall">
     <div class="paybox">
-      <h3>Unlock full CV</h3>
-      <p>Templates • Colors • PDF export</p>
-
-      <!-- 🔥 TAVO STRIPE LINKAS -->
+      <h3>Export your CV</h3>
+      <p>PDF & Word</p>
       <a href="https://buy.stripe.com/test_6oUcN7ehggXX5gEgyv3oA00">
-        Unlock → €3.99
+        Export → €3.99
       </a>
-
-      <small>No subscription</small>
     </div>
   </div>
 </div>
@@ -216,41 +215,67 @@ body{
 </div>
 
 <script>
-let unlocked=false;
+let history=[],future=[];
+const preview=document.getElementById("preview");
 
-function generate(){
-  document.getElementById("pName").innerText=
-    name.value||"Your Name";
-  document.getElementById("pRole").innerText=
-    role.value||"Your Profession";
-  document.getElementById("pExp").innerText=
-    exp.value||"Your experience here.";
+function update(){
+  pName.innerText=name.value||"John Doe";
+  pRole.innerText=role.value||"Your role";
+  pSummary.innerText=summary.value||"Summary";
+  summaryCount.innerText=summary.value.length+" / 400";
+  saveState();
 }
 
-function setTemplate(t){
-  if(!unlocked)return locked();
-  preview.className=`preview template-${t} cv`;
+function setFont(f){document.documentElement.style.setProperty("--font",f)}
+function setSpacing(v){document.documentElement.style.setProperty("--line",v)}
+
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==="none"?"block":"none";
+  saveState();
 }
 
-function setColor(c){
-  if(!unlocked)return locked();
-  document.documentElement.style.setProperty("--accent",c);
+function toggleMobile(){
+  preview.classList.toggle("mobile");
 }
 
-function locked(){
-  alert("Unlock premium features to customize design");
+function saveState(){
+  history.push(preview.innerHTML);
+  localStorage.cv=preview.innerHTML;
 }
 
-/* DEV ONLY – simulate unlock */
-document.addEventListener("keydown",e=>{
-  if(e.key==="u"){
-    unlocked=true;
-    preview.classList.remove("blur");
-    document.getElementById("paywall").style.display="none";
+function undo(){
+  if(history.length>1){
+    future.push(history.pop());
+    preview.innerHTML=history[history.length-1];
   }
-});
+}
+function redo(){
+  if(future.length){
+    preview.innerHTML=future.pop();
+  }
+}
+
+function highlight(){
+  const keys=keywords.value.split(",").map(k=>k.trim());
+  let html=preview.innerHTML;
+  keys.forEach(k=>{
+    if(k) html=html.replaceAll(k,`<mark>${k}</mark>`);
+  });
+  preview.innerHTML=html;
+}
+
+function pay(){
+  window.location.href="https://buy.stripe.com/test_6oUcN7ehggXX5gEgyv3oA00";
+}
+
+/* Load saved */
+if(localStorage.cv){
+  preview.innerHTML=localStorage.cv;
+}
 </script>
 
 </body>
 </html>
+
 
