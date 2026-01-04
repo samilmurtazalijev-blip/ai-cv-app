@@ -173,6 +173,26 @@
     document.getElementById("previewBox").scrollIntoView({ behavior: "smooth" });
   }
 </script>
+  <script>
+  function generate() {
+    const name = document.getElementById("name").value || "Your Name";
+    const role = document.getElementById("role").value || "Your Profession";
+    const exp  = document.getElementById("exp").value || "Your experience will appear here.";
+
+    document.getElementById("pName").innerText = name;
+    document.getElementById("pRole").innerText = role;
+    document.getElementById("pExp").innerText  = exp;
+
+    document.getElementById("previewBox").scrollIntoView({ behavior: "smooth" });
+  }
+
+  // 🔓 UNLOCK AFTER PAYMENT
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("success") === "true") {
+    document.getElementById("previewContent").classList.remove("blur");
+    document.getElementById("paywall").style.display = "none";
+  }
+</script>
 
 </body>
 </html>
